@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security Dashboard — GreenField AgriTech</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="dash-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="dash-sidebar" id="sidebar">
+    <div class="dash-sidebar-logo">
+      <a href="../index.html" class="nav-logo" style="color:white;font-size:1rem">
+        <span>🌿</span>
+        <span>GreenField <span style="color:#7dce8d">AgriTech</span></span>
+      </a>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.25);margin-top:0.4rem;letter-spacing:1px">SECURITY DASHBOARD</div>
+    </div>
+
+    <nav class="dash-nav">
+      <div class="dash-nav-section">Monitoring</div>
+      <button class="dash-nav-item active" onclick="showPage('overview')">
+        <span class="nav-icon">📊</span> Overview
+      </button>
+      <button class="dash-nav-item" onclick="showPage('threats')">
+        <span class="nav-icon">🛡️</span> Threat Log
+        <span class="nav-badge" id="nav-badge">0</span>
+      </button>
+      <button class="dash-nav-item" onclick="showPage('visitors')">
+        <span class="nav-icon">👁️</span> Visitor Intel
+      </button>
+      <button class="dash-nav-section" style="pointer-events:none">Farm Data</button>
+      <button class="dash-nav-item" onclick="showPage('sensors')">
+        <span class="nav-icon">📡</span> Sensor Feed
+      </button>
+      <button class="dash-nav-item" onclick="showPage('alerts')">
+        <span class="nav-icon">🔔</span> Alerts
+        <span class="nav-badge" id="alert-badge" style="background:var(--amber)">0</span>
+      </button>
+      <div class="dash-nav-section">Settings</div>
+      <button class="dash-nav-item" onclick="showPage('settings')">
+        <span class="nav-icon">⚙️</span> Notifications
+      </button>
+    </nav>
+
+    <div class="dash-sidebar-footer">
+      <div class="dash-user">
+        <div class="dash-avatar" id="dash-avatar">A</div>
+        <div class="dash-user-info">
+          <div class="dash-user-name" id="dash-uname">agri_admin</div>
+          <div class="dash-user-role">Security Analyst</div>
+        </div>
+        <button class="dash-logout" onclick="doLogout()" title="Logout">⏻</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="dash-main">
+
+    <!-- TOP BAR -->
+    <div class="dash-topbar">
+      <button style="background:none;border:none;font-size:1.3rem;cursor:pointer;display:none" id="menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="dash-page-title" id="page-title">Security Overview</div>
+      <div class="dash-topbar-actions">
+        <div style="font-size:0.78rem;color:var(--text-muted)" id="last-refresh">Refreshing...</div>
+        <button class="btn btn-outline" style="font-size:0.78rem;padding:0.4rem 1rem" onclick="exportLogs()">⬇ Export CSV</button>
+        <button class="dash-notif-btn" onclick="showPage('alerts')">
+          🔔 <div class="dash-notif-badge" id="topbar-badge"></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- PAGES -->
+    <div class="dash-content">
+
+      <!-- ══ PAGE: OVERVIEW ══════════════════════════════ -->
+      <div id="page-overview" class="dash-page">
+
+        <!-- Stats -->
+        <div class="dash-stats fade-up">
+          <div class="dstat">
+            <div class="dstat-icon">👁️</div>
+            <div class="dstat-label">Total Page Visits</div>
+            <div class="dstat-num" id="stat-visits">0</div>
+            <div class="dstat-sub">Since monitoring started</div>
+          </div>
+          <div class="dstat amber">
+            <div class="dstat-icon">⚠️</div>
+            <div class="dstat-label">Login Attempts</div>
+            <div class="dstat-num" id="stat-attempts">0</div>
+            <div class="dstat-sub">Credential attacks</div>
+          </div>
+          <div class="dstat red">
+            <div class="dstat-icon">🚫</div>
+            <div class="dstat-label">Access Denied</div>
+            <div class="dstat-num" id="stat-denied">0</div>
+            <div class="dstat-sub">Blocked & logged</div>
+          </div>
+          <div class="dstat blue">
+            <div class="dstat-icon">📱</div>
+            <div class="dstat-label">Devices Tracked</div>
+            <div class="dstat-num" id="stat-devices">0</div>
+            <div class="dstat-sub">Unique browsers/OS</div>
+          </div>
+        </div>
+
+        <div class="dash-grid3 fade-up delay-1">
+
+          <!-- Recent threat log -->
+          <div class="dash-card">
+            <div class="dash-card-head">
+              <h3>🛡️ Recent Threat Events</h3>
+              <button class="btn btn-outline" style="font-size:0.75rem;padding:0.3rem 0.9rem" onclick="showPage('threats')">View All</button>
+            </div>
+            <div class="dash-card-body" style="padding:0">
+              <table class="threat-table">
+                <thead><tr>
+                  <th>#</th><th>Time</th><th>Event</th><th>Username Tried</th><th>Device</th>
+                </tr></thead>
+                <tbody id="overview-log-body">
+                  <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem;font-size:0.85rem">No events yet — visit the trap page to generate data</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Threat gauge + mini stats -->
+          <div style="display:flex;flex-direction:column;gap:1.5rem">
+
+            <div class="dash-card">
+              <div class="dash-card-head"><h3>🎯 Threat Level</h3></div>
+              <div class="dash-card-body">
+                <div class="gauge-wrap">
+                  <svg class="gauge-svg" width="110" height="110" viewBox="0 0 110 110">
+                    <circle class="gauge-bg" cx="55" cy="55" r="44"/>
+                    <circle class="gauge-fill" id="gauge-circle" cx="55" cy="55" r="44"
+                      stroke="#2d7a3a"
+                      stroke-dasharray="276.46"
+                      stroke-dashoffset="276.46"/>
+                  </svg>
+                  <div class="gauge-center">
+                    <div class="gauge-val-big" id="gauge-val">0</div>
+                    <div class="gauge-label-sm">attempts</div>
+                    <div class="threat-lev-label" id="threat-lev" style="color:var(--text-muted)">MONITORING</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-card">
+              <div class="dash-card-head"><h3>📈 Activity (10 events)</h3></div>
+              <div class="dash-card-body">
+                <div class="mini-chart" id="mini-chart"></div>
+                <div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:0.65rem;color:var(--text-muted)">
+                  <span>Oldest</span><span>Latest</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Browser / OS breakdown -->
+        <div class="dash-grid2 fade-up delay-2">
+          <div class="dash-card">
+            <div class="dash-card-head"><h3>🌐 Browser Breakdown</h3></div>
+            <div class="dash-card-body" id="browser-breakdown">
+              <div style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:1rem">Awaiting visitor data</div>
+            </div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-head"><h3>💻 OS Breakdown</h3></div>
+            <div class="dash-card-body" id="os-breakdown">
+              <div style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:1rem">Awaiting visitor data</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ PAGE: THREATS ════════════════════════════════ -->
+      <div id="page-threats" class="dash-page" style="display:none">
+        <div class="dash-card">
+          <div class="dash-card-head">
+            <h3>🛡️ Full Threat Log</h3>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+              <select id="filter-event" onchange="renderFullLog()" style="font-family:'Outfit',sans-serif;padding:0.3rem 0.75rem;border:1px solid var(--border);border-radius:6px;font-size:0.8rem">
+                <option value="">All Events</option>
+                <option value="LOGIN_ATTEMPT">Login Attempts</option>
+                <option value="ACCESS_DENIED">Access Denied</option>
+                <option value="PAGE_VISIT">Page Visits</option>
+                <option value="LOGIN_SUCCESS">Successful Logins</option>
+              </select>
+              <button class="btn btn-outline" style="font-size:0.75rem;padding:0.3rem 0.9rem" onclick="clearLogs()">🗑 Clear All</button>
+            </div>
+          </div>
+          <div class="dash-card-body" style="padding:0;overflow-x:auto">
+            <table class="threat-table">
+              <thead><tr>
+                <th>#</th><th>Timestamp</th><th>Event</th><th>Username Tried</th><th>Page</th><th>Browser</th><th>OS</th><th>Duration</th>
+              </tr></thead>
+              <tbody id="full-log-body">
+                <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">No log data yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: VISITOR INTEL ══════════════════════════ -->
+      <div id="page-visitors" class="dash-page" style="display:none">
+        <div class="dash-grid2">
+          <div class="dash-card">
+            <div class="dash-card-head"><h3>📊 Visit Summary</h3></div>
+            <div class="dash-card-body" id="visit-summary">
+              <div style="color:var(--text-muted);font-size:0.85rem">No data yet.</div>
+            </div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-head"><h3>🔍 Usernames Attempted</h3></div>
+            <div class="dash-card-body" id="username-list">
+              <div style="color:var(--text-muted);font-size:0.85rem">No attempts yet.</div>
+            </div>
+          </div>
+        </div>
+        <div class="dash-card" style="margin-top:1.5rem">
+          <div class="dash-card-head"><h3>📱 Device Intelligence</h3></div>
+          <div class="dash-card-body" id="device-intel">
+            <div style="color:var(--text-muted);font-size:0.85rem">Awaiting visitor data.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: SENSORS ════════════════════════════════ -->
+      <div id="page-sensors" class="dash-page" style="display:none">
+        <div class="dash-stats">
+          <div class="dstat"><div class="dstat-icon">🌡️</div><div class="dstat-label">Temperature</div><div class="dstat-num" id="d-temp">28.4°C</div><div class="dstat-sub">Field 1 — Normal</div></div>
+          <div class="dstat amber"><div class="dstat-icon">💧</div><div class="dstat-label">Soil Moisture</div><div class="dstat-num" id="d-soil">64%</div><div class="dstat-sub">Field 1 — Needs water</div></div>
+          <div class="dstat"><div class="dstat-icon">💦</div><div class="dstat-label">Humidity</div><div class="dstat-num" id="d-hum">72%</div><div class="dstat-sub">Ambient air</div></div>
+          <div class="dstat"><div class="dstat-icon">⚗️</div><div class="dstat-label">Soil pH</div><div class="dstat-num" id="d-ph">6.8</div><div class="dstat-sub">Optimal range</div></div>
+        </div>
+        <div class="dash-card" style="margin-top:1.5rem">
+          <div class="dash-card-head"><h3>📡 Live Sensor Log</h3></div>
+          <div class="dash-card-body" style="padding:0;overflow-x:auto">
+            <table class="threat-table">
+              <thead><tr><th>Time</th><th>Sensor</th><th>Value</th><th>Field</th><th>Status</th></tr></thead>
+              <tbody id="sensor-log"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: ALERTS ════════════════════════════════ -->
+      <div id="page-alerts" class="dash-page" style="display:none">
+        <div class="dash-card">
+          <div class="dash-card-head">
+            <h3>🔔 Security & Farm Alerts</h3>
+            <button class="btn btn-outline" style="font-size:0.75rem;padding:0.3rem 0.9rem" onclick="clearAlerts()">Mark All Read</button>
+          </div>
+          <div class="dash-card-body">
+            <div class="alert-feed" id="alert-feed">
+              <div style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:1rem">No alerts yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PAGE: SETTINGS ══════════════════════════════ -->
+      <div id="page-settings" class="dash-page" style="display:none">
+        <div class="dash-card" style="max-width:640px">
+          <div class="dash-card-head"><h3>⚙️ Notification Settings</h3></div>
+          <div class="dash-card-body">
+            <div class="settings-form">
+
+              <div class="settings-section">
+                <h4>📧 Email Alerts</h4>
+                <div class="form-field">
+                  <label class="form-label">Alert Email Address</label>
+                  <input class="form-input" type="email" id="alert-email" placeholder="your@email.com" value="">
+                  <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem">Receive email alerts for login attempts and security events</div>
+                </div>
+                <div class="settings-item">
+                  <div><div class="settings-item-label">Login Attempt Alerts</div><div class="settings-item-sub">Email on every failed login</div></div>
+                  <label class="toggle"><input type="checkbox" id="tog-email-login" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-item">
+                  <div><div class="settings-item-label">Daily Summary Report</div><div class="settings-item-sub">Email a daily threat summary at 8:00 AM</div></div>
+                  <label class="toggle"><input type="checkbox" id="tog-email-daily"><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+
+              <div class="settings-section">
+                <h4>📱 Phone / WhatsApp Alerts</h4>
+                <div class="form-field">
+                  <label class="form-label">Phone Number</label>
+                  <input class="form-input" type="tel" id="alert-phone" placeholder="+91 98765 43210" value="">
+                  <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem">Receive WhatsApp/SMS alerts for critical security events</div>
+                </div>
+                <div class="settings-item">
+                  <div><div class="settings-item-label">WhatsApp Alerts</div><div class="settings-item-sub">Alert on high-threat events (5+ attempts)</div></div>
+                  <label class="toggle"><input type="checkbox" id="tog-wa" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-item">
+                  <div><div class="settings-item-label">SMS Alerts</div><div class="settings-item-sub">SMS fallback when WhatsApp unavailable</div></div>
+                  <label class="toggle"><input type="checkbox" id="tog-sms"><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+
+              <div class="settings-section">
+                <h4>🚨 Alert Thresholds</h4>
+                <div class="settings-item">
+                  <div><div class="settings-item-label">Alert After N Attempts</div><div class="settings-item-sub">Trigger alert when attempt count reaches threshold</div></div>
+                  <select id="threshold" style="font-family:'Outfit',sans-serif;padding:0.35rem 0.75rem;border:1.5px solid var(--border);border-radius:6px">
+                    <option value="1">Every attempt</option>
+                    <option value="3">3 attempts</option>
+                    <option value="5" selected>5 attempts</option>
+                    <option value="10">10 attempts</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="settings-saved" style="display:none;background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:0.75rem 1rem;font-size:0.85rem;color:#166534;margin-bottom:1rem;align-items:center;gap:0.5rem">
+                ✅ Settings saved successfully!
+              </div>
+
+              <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+
+              <div style="margin-top:2rem;background:var(--green-pale);border:1px solid var(--border);border-radius:8px;padding:1rem;font-size:0.82rem;color:var(--text-muted)">
+                <strong style="color:var(--text)">📌 Note for GitHub Pages hosting:</strong><br>
+                Because this site is static (GitHub Pages), real email/SMS alerts require a backend service. For production, connect to <strong>EmailJS</strong> (free) for email alerts, or <strong>Twilio</strong> for SMS/WhatsApp. The settings here are saved to your browser and ready for integration.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dash-content -->
+  </div><!-- /dash-main -->
+</div><!-- /dash-layout -->
+
+<script src="../js/honeypot.js"></script>
+<script>
+const HP_KEY = 'gf_threat_logs';
+const SETTINGS_KEY = 'gf_settings';
+
+let allLogs = [];
+let alerts = [];
+let activityBuckets = new Array(10).fill(0);
+let sensorRows = [];
+
+// ── AUTH GUARD ─────────────────────────────────────────
+(function checkAuth() {
+  const auth = sessionStorage.getItem('gf_auth');
+  if (!auth) {
+    window.location.href = 'login.html';
+    return;
+  }
+  const data = JSON.parse(auth);
+  document.getElementById('dash-uname').textContent = data.user;
+  document.getElementById('dash-avatar').textContent = data.user[0].toUpperCase();
+})();
+
+function doLogout() {
+  sessionStorage.removeItem('gf_auth');
+  window.location.href = 'login.html';
+}
+
+// ── PAGE NAV ──────────────────────────────────────────
+const pageNames = {
+  overview: 'Security Overview',
+  threats: 'Threat Log',
+  visitors: 'Visitor Intelligence',
+  sensors: 'Live Sensor Feed',
+  alerts: 'Alerts & Notifications',
+  settings: 'Notification Settings',
+};
+
+function showPage(id) {
+  document.querySelectorAll('.dash-page').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('.dash-nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).style.display = 'block';
+  document.getElementById('page-title').textContent = pageNames[id] || id;
+
+  const btns = document.querySelectorAll('.dash-nav-item');
+  const keys = ['overview','threats','visitors','sensors','alerts','settings'];
+  const idx = keys.indexOf(id);
+  if (idx >= 0) btns[idx]?.classList.add('active');
+
+  if (id === 'threats') renderFullLog();
+  if (id === 'visitors') renderVisitorIntel();
+  if (id === 'alerts') renderAlerts();
+}
+
+// ── SIDEBAR MOBILE ────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ── LOAD & REFRESH LOGS ───────────────────────────────
+function loadLogs() {
+  try {
+    allLogs = JSON.parse(localStorage.getItem(HP_KEY) || '[]');
+  } catch(e) { allLogs = []; }
+  refreshDashboard();
+  document.getElementById('last-refresh').textContent = 'Updated: ' + new Date().toLocaleTimeString('en-IN');
+}
+
+function refreshDashboard() {
+  const visits   = allLogs.filter(l => l.event === 'PAGE_VISIT').length;
+  const attempts = allLogs.filter(l => l.event === 'LOGIN_ATTEMPT').length;
+  const denied   = allLogs.filter(l => l.event === 'ACCESS_DENIED').length;
+  const devices  = new Set(allLogs.map(l => l.ua)).size;
+
+  setText('stat-visits', visits);
+  setText('stat-attempts', attempts);
+  setText('stat-denied', denied);
+  setText('stat-devices', devices);
+
+  updateGauge(attempts);
+  renderOverviewLog();
+  updateMiniChart();
+  renderBreakdown();
+  updateNavBadges(attempts);
+  checkAlertThreshold(attempts);
+  refreshSensorLog();
+}
+
+// ── OVERVIEW LOG ──────────────────────────────────────
+function renderOverviewLog() {
+  const tbody = document.getElementById('overview-log-body');
+  const rows = allLogs.filter(l => ['LOGIN_ATTEMPT','ACCESS_DENIED','LOGIN_SUCCESS'].includes(l.event)).slice(0, 10);
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem;font-size:0.85rem">No threat events yet</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr class="${i === 0 ? 'new' : ''}">
+      <td style="color:var(--text-muted);font-size:0.75rem">${String(i+1).padStart(3,'0')}</td>
+      <td style="color:var(--text-muted);font-size:0.75rem;white-space:nowrap">${fmtTime(r.ts)}</td>
+      <td>${badge(r.event)}</td>
+      <td><strong>${r.username || '—'}</strong></td>
+      <td style="color:var(--text-muted);font-size:0.75rem">${r.browser || '—'} / ${r.os || '—'}</td>
+    </tr>
+  `).join('');
+}
+
+// ── FULL LOG ──────────────────────────────────────────
+function renderFullLog() {
+  const filter = document.getElementById('filter-event')?.value || '';
+  const tbody = document.getElementById('full-log-body');
+  let rows = filter ? allLogs.filter(l => l.event === filter) : allLogs;
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--text-muted)">No log entries found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map((r, i) => `
+    <tr>
+      <td style="color:var(--text-muted);font-size:0.75rem">${String(i+1).padStart(4,'0')}</td>
+      <td style="font-size:0.75rem;color:var(--text-muted);white-space:nowrap">${fmtTime(r.ts)}</td>
+      <td>${badge(r.event)}</td>
+      <td><strong>${r.username || '—'}</strong></td>
+      <td style="font-size:0.75rem;color:var(--text-muted)">${r.page || r.url || '—'}</td>
+      <td style="font-size:0.75rem">${r.browser || '—'}</td>
+      <td style="font-size:0.75rem">${r.os || '—'}</td>
+      <td style="font-size:0.75rem;color:var(--text-muted)">${r.duration_secs != null ? r.duration_secs + 's' : '—'}</td>
+    </tr>
+  `).join('');
+}
+
+// ── VISITOR INTEL ─────────────────────────────────────
+function renderVisitorIntel() {
+  // Visit summary
+  const visits = allLogs.filter(l => l.event === 'PAGE_VISIT');
+  const pages = {};
+  visits.forEach(v => { const p = v.page || '/'; pages[p] = (pages[p]||0)+1; });
+
+  const summaryEl = document.getElementById('visit-summary');
+  if (visits.length === 0) { summaryEl.innerHTML = '<div style="color:var(--text-muted)">No visits recorded yet.</div>'; }
+  else {
+    summaryEl.innerHTML = Object.entries(pages).sort((a,b)=>b[1]-a[1]).map(([p,c]) => `
+      <div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.85rem">
+        <span style="color:var(--text)">${p}</span>
+        <span style="font-weight:700;color:var(--green)">${c} visits</span>
+      </div>
+    `).join('');
+  }
+
+  // Usernames tried
+  const attempts = allLogs.filter(l => l.event === 'LOGIN_ATTEMPT' && l.username);
+  const usernames = {};
+  attempts.forEach(a => { usernames[a.username] = (usernames[a.username]||0)+1; });
+
+  const unameEl = document.getElementById('username-list');
+  if (!attempts.length) { unameEl.innerHTML = '<div style="color:var(--text-muted)">No login attempts yet.</div>'; }
+  else {
+    unameEl.innerHTML = Object.entries(usernames).sort((a,b)=>b[1]-a[1]).map(([u,c]) => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--border)">
+        <code style="font-size:0.85rem;background:var(--bg-alt);padding:2px 8px;border-radius:4px">${u}</code>
+        <span style="font-size:0.75rem;background:var(--red-light);color:var(--red);padding:2px 8px;border-radius:12px;font-weight:700">${c}×</span>
+      </div>
+    `).join('');
+  }
+
+  // Device intel
+  const devEl = document.getElementById('device-intel');
+  if (!allLogs.length) { devEl.innerHTML = '<div style="color:var(--text-muted)">No device data yet.</div>'; return; }
+  const mobile = allLogs.filter(l => l.touch).length;
+  const desktop = allLogs.length - mobile;
+  const langs = {};
+  allLogs.forEach(l => { if(l.lang) langs[l.lang] = (langs[l.lang]||0)+1; });
+  const tzs = {};
+  allLogs.forEach(l => { if(l.tz) tzs[l.tz] = (tzs[l.tz]||0)+1; });
+
+  devEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+      <div style="background:var(--bg-alt);border-radius:8px;padding:1rem;text-align:center">
+        <div style="font-size:1.8rem">📱</div>
+        <div style="font-size:1.4rem;font-weight:700;color:var(--green)">${mobile}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted)">Mobile / Touch</div>
+      </div>
+      <div style="background:var(--bg-alt);border-radius:8px;padding:1rem;text-align:center">
+        <div style="font-size:1.8rem">💻</div>
+        <div style="font-size:1.4rem;font-weight:700;color:var(--blue)">${desktop}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted)">Desktop</div>
+      </div>
+      <div style="background:var(--bg-alt);border-radius:8px;padding:1rem;text-align:center">
+        <div style="font-size:1.8rem">🌍</div>
+        <div style="font-size:1.4rem;font-weight:700;color:var(--amber)">${Object.keys(langs).length}</div>
+        <div style="font-size:0.75rem;color:var(--text-muted)">Languages</div>
+      </div>
+    </div>
+    <div style="margin-top:1rem">
+      <div style="font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:0.5rem;letter-spacing:1px;text-transform:uppercase">Timezones Detected</div>
+      ${Object.entries(tzs).map(([tz,c])=>`
+        <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border);font-size:0.82rem">
+          <span>${tz}</span><span style="font-weight:600;color:var(--green)">${c}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ── GAUGE ─────────────────────────────────────────────
+function updateGauge(attempts) {
+  const circle = document.getElementById('gauge-circle');
+  const valEl = document.getElementById('gauge-val');
+  const levEl = document.getElementById('threat-lev');
+  if (!circle) return;
+
+  valEl.textContent = attempts;
+  const circumference = 276.46;
+  const pct = Math.min(attempts / 20, 1);
+  const offset = circumference - (pct * circumference);
+  circle.style.strokeDashoffset = offset;
+
+  let color, label;
+  if (attempts === 0)      { color = '#9ca3af'; label = 'MONITORING'; }
+  else if (attempts < 3)   { color = '#2563eb'; label = 'LOW'; }
+  else if (attempts < 8)   { color = '#d97706'; label = 'ELEVATED'; }
+  else if (attempts < 15)  { color = '#dc2626'; label = 'HIGH'; }
+  else                     { color = '#7c2d12'; label = 'CRITICAL'; }
+
+  circle.style.stroke = color;
+  levEl.textContent = label;
+  levEl.style.color = color;
+  valEl.style.color = color;
+}
+
+// ── MINI CHART ────────────────────────────────────────
+function updateMiniChart() {
+  const chartEl = document.getElementById('mini-chart');
+  if (!chartEl) return;
+  const events = allLogs.filter(l => l.event !== 'PAGE_EXIT').slice(0, 10).reverse();
+  chartEl.innerHTML = '';
+  const max = events.length || 1;
+  for (let i = 0; i < 10; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'mini-bar';
+    const h = i < events.length ? Math.max(4, ((i+1)/max)*44) : 4;
+    const e = events[i];
+    const color = e?.event === 'ACCESS_DENIED' ? 'var(--red)' : e?.event === 'LOGIN_ATTEMPT' ? 'var(--amber)' : 'var(--green)';
+    bar.style.cssText = `height:${h}px;background:${color};opacity:${i === events.length-1 ? 1 : 0.5}`;
+    chartEl.appendChild(bar);
+  }
+}
+
+// ── BREAKDOWN CHARTS ──────────────────────────────────
+function renderBreakdown() {
+  renderCountChart('browser-breakdown', 'browser');
+  renderCountChart('os-breakdown', 'os');
+}
+
+function renderCountChart(elId, field) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const counts = {};
+  allLogs.forEach(l => { if(l[field]) counts[l[field]] = (counts[l[field]]||0)+1; });
+  const entries = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const total = allLogs.length || 1;
+
+  if (!entries.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:0.85rem;text-align:center">Awaiting data</div>'; return; }
+
+  el.innerHTML = entries.map(([name, count]) => {
+    const pct = Math.round((count/total)*100);
+    return `
+      <div style="margin-bottom:0.75rem">
+        <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px">
+          <span style="font-weight:600">${name}</span>
+          <span style="color:var(--text-muted)">${count} (${pct}%)</span>
+        </div>
+        <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:var(--green);border-radius:3px;transition:width 0.5s ease"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── ALERTS ────────────────────────────────────────────
+function checkAlertThreshold(attempts) {
+  const settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+  const threshold = parseInt(settings.threshold || 5);
+
+  if (attempts > 0 && attempts % threshold === 0) {
+    const msg = `🚨 ${attempts} login attempts detected on honeypot!`;
+    if (!alerts.find(a => a.msg === msg)) {
+      alerts.unshift({ type: 'critical', icon: '🚨', msg, time: new Date().toLocaleTimeString('en-IN') });
+      document.getElementById('alert-badge').textContent = alerts.length;
+      document.getElementById('topbar-badge').style.display = 'block';
+    }
+  }
+}
+
+function renderAlerts() {
+  const el = document.getElementById('alert-feed');
+  if (!el) return;
+
+  // Combine security alerts + farm alerts
+  const farmAlerts = [
+    { type: 'warning', icon: '💧', msg: 'Field 3 soil moisture below 40% — irrigation recommended', time: '09:15 AM' },
+    { type: 'warning', icon: '⛈️', msg: 'Heavy rain alert for Wednesday — secure IoT equipment', time: '08:00 AM' },
+  ];
+
+  const combined = [...alerts, ...farmAlerts];
+
+  if (!combined.length) { el.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:2rem">No alerts</div>'; return; }
+
+  el.innerHTML = combined.map(a => `
+    <div class="alert-item ${a.type}">
+      <div class="alert-icon">${a.icon}</div>
+      <div class="alert-body">
+        <div class="alert-title">${a.msg}</div>
+        <div class="alert-time">${a.time}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('alert-badge').textContent = alerts.length || '';
+}
+
+function clearAlerts() {
+  alerts = [];
+  document.getElementById('alert-badge').textContent = '';
+  document.getElementById('topbar-badge').style.display = 'none';
+  renderAlerts();
+}
+
+// ── SENSOR FEED ──────────────────────────────────────
+function refreshSensorLog() {
+  const sensorTypes = ['Soil Moisture','Temperature','Humidity','Soil pH','Wind Speed','Rainfall'];
+  const values = ['64%','28.4°C','72%','6.8','12 km/h','2.4mm'];
+  const fields = ['Field 1','Field 2','Field 3','Field 1','Weather Station','Weather Station'];
+  const statuses = ['Moderate','Normal','Normal','Optimal','Normal','Light'];
+
+  const tbody = document.getElementById('sensor-log');
+  if (!tbody) return;
+
+  const now = new Date();
+  const newRow = document.createElement('tr');
+  const idx = Math.floor(Math.random() * sensorTypes.length);
+  newRow.innerHTML = `
+    <td style="font-size:0.78rem;color:var(--text-muted)">${now.toLocaleTimeString('en-IN')}</td>
+    <td style="font-size:0.82rem">${sensorTypes[idx]}</td>
+    <td style="font-weight:700;color:var(--green)">${values[idx]}</td>
+    <td style="font-size:0.78rem;color:var(--text-muted)">${fields[idx]}</td>
+    <td><span style="background:var(--green-pale);color:var(--green);padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:600">${statuses[idx]}</span></td>
+  `;
+  tbody.insertBefore(newRow, tbody.firstChild);
+  while (tbody.children.length > 20) tbody.removeChild(tbody.lastChild);
+
+  // Update dashboard sensor values
+  setText('d-temp', (28 + Math.random()).toFixed(1) + '°C');
+  setText('d-soil', Math.round(60 + Math.random()*8) + '%');
+  setText('d-hum', Math.round(70 + Math.random()*6) + '%');
+  setText('d-ph', (6.7 + Math.random()*0.3).toFixed(1));
+}
+
+// ── SETTINGS ─────────────────────────────────────────
+function saveSettings() {
+  const settings = {
+    email: document.getElementById('alert-email').value,
+    phone: document.getElementById('alert-phone').value,
+    threshold: document.getElementById('threshold').value,
+    emailLogin: document.getElementById('tog-email-login').checked,
+    emailDaily: document.getElementById('tog-email-daily').checked,
+    wa: document.getElementById('tog-wa').checked,
+    sms: document.getElementById('tog-sms').checked,
+  };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  const saved = document.getElementById('settings-saved');
+  saved.style.display = 'flex';
+  setTimeout(() => saved.style.display = 'none', 3000);
+}
+
+function loadSettings() {
+  const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+  if (s.email) document.getElementById('alert-email').value = s.email;
+  if (s.phone) document.getElementById('alert-phone').value = s.phone;
+  if (s.threshold) document.getElementById('threshold').value = s.threshold;
+  if (s.emailLogin !== undefined) document.getElementById('tog-email-login').checked = s.emailLogin;
+  if (s.emailDaily !== undefined) document.getElementById('tog-email-daily').checked = s.emailDaily;
+  if (s.wa !== undefined) document.getElementById('tog-wa').checked = s.wa;
+  if (s.sms !== undefined) document.getElementById('tog-sms').checked = s.sms;
+}
+
+// ── EXPORT ────────────────────────────────────────────
+function exportLogs() {
+  if (!allLogs.length) { alert('No logs to export.'); return; }
+  const headers = 'ID,Timestamp,Event,Username,Page,Browser,OS,Screen,Language,Timezone\n';
+  const rows = allLogs.map((r,i) =>
+    [i+1, r.ts_local||r.ts, r.event, r.username||'', r.page||'', r.browser||'', r.os||'', r.screen||'', r.lang||'', r.tz||'']
+    .map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')
+  ).join('\n');
+  const blob = new Blob([headers + rows], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'greenfield_threat_log_' + Date.now() + '.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearLogs() {
+  if (!confirm('Delete ALL threat log data? This cannot be undone.')) return;
+  localStorage.removeItem(HP_KEY);
+  allLogs = [];
+  refreshDashboard();
+  renderFullLog();
+}
+
+// ── HELPERS ───────────────────────────────────────────
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function fmtTime(ts) {
+  try { return new Date(ts).toLocaleString('en-IN', { dateStyle:'short', timeStyle:'short' }); }
+  catch(e) { return ts; }
+}
+
+function badge(event) {
+  const map = {
+    PAGE_VISIT: 'tbadge-visit',
+    LOGIN_ATTEMPT: 'tbadge-attempt',
+    ACCESS_DENIED: 'tbadge-denied',
+    LOGIN_SUCCESS: 'tbadge-visit',
+    HUMAN_INTERACTION: 'tbadge-visit',
+    PAGE_EXIT: 'tbadge-visit',
+  };
+  const labels = {
+    PAGE_VISIT: '👁️ Visit',
+    LOGIN_ATTEMPT: '⚠️ Attempt',
+    ACCESS_DENIED: '🚫 Denied',
+    LOGIN_SUCCESS: '✅ Success',
+    HUMAN_INTERACTION: '🖱️ Interaction',
+    PAGE_EXIT: '🚪 Exit',
+  };
+  return `<span class="tbadge ${map[event]||'tbadge-visit'}">${labels[event]||event}</span>`;
+}
+
+function updateNavBadges(attempts) {
+  document.getElementById('nav-badge').textContent = attempts || '';
+}
+
+// ── INIT ──────────────────────────────────────────────
+loadSettings();
+loadLogs();
+setInterval(loadLogs, 3000); // Poll every 3 seconds
+setInterval(refreshSensorLog, 5000); // Sensor feed updates
+
+// Responsive sidebar button
+if (window.innerWidth <= 900) {
+  document.getElementById('menu-btn').style.display = 'block';
+}
+</script>
+</body>
+</html>

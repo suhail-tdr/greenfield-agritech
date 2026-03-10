@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GreenField AgriTech — Smart Farming Solutions</title>
+<meta name="description" content="GreenField AgriTech provides cutting-edge smart farming solutions for modern agriculture. IoT sensors, crop analytics, and farm management tools.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo">
+      <span class="logo-leaf">🌿</span>
+      <span class="logo-text">GreenField <span>AgriTech</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#solutions">Solutions</a></li>
+      <li><a href="#crops">Crop Monitor</a></li>
+      <li><a href="#weather">Weather</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a href="pages/login.html" class="btn btn-outline">Farm Login</a>
+      <a href="#contact" class="btn btn-primary">Get Started</a>
+    </div>
+    <button class="nav-burger" onclick="toggleMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="nav-mobile" id="navMobile">
+    <a href="#solutions">Solutions</a>
+    <a href="#crops">Crop Monitor</a>
+    <a href="#weather">Weather</a>
+    <a href="#about">About</a>
+    <a href="pages/login.html" class="btn btn-primary" style="margin-top:1rem;display:inline-block">Farm Login</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-gradient"></div>
+    <div class="hero-particles" id="particles"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      <span>Trusted by 2,400+ farms across India</span>
+    </div>
+    <h1 class="hero-title">
+      Smart Farming<br>
+      <em>for the Next</em><br>
+      Generation
+    </h1>
+    <p class="hero-sub">Real-time crop monitoring, soil analytics, weather forecasting, and IoT-powered farm management — all in one platform designed for modern agriculture.</p>
+    <div class="hero-btns">
+      <a href="pages/login.html" class="btn btn-primary btn-lg">Access Your Farm Dashboard</a>
+      <a href="#solutions" class="btn btn-ghost btn-lg">Explore Solutions ↓</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><span class="hstat-num">98.4%</span><span class="hstat-label">Crop Yield Accuracy</span></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><span class="hstat-num">2,400+</span><span class="hstat-label">Active Farms</span></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><span class="hstat-num">₹12Cr+</span><span class="hstat-label">Farmer Savings</span></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="farm-card">
+      <div class="farm-card-header">
+        <span class="fc-dot green"></span>
+        <span>Live Farm Status — Tiruvalla District</span>
+        <span class="fc-live">LIVE</span>
+      </div>
+      <div class="sensor-grid">
+        <div class="sensor-item">
+          <div class="sensor-icon">🌡️</div>
+          <div class="sensor-val" id="h-temp">28.4°C</div>
+          <div class="sensor-label">Temperature</div>
+        </div>
+        <div class="sensor-item">
+          <div class="sensor-icon">💧</div>
+          <div class="sensor-val" id="h-humid">72%</div>
+          <div class="sensor-label">Humidity</div>
+        </div>
+        <div class="sensor-item">
+          <div class="sensor-icon">🌱</div>
+          <div class="sensor-val" id="h-soil">64%</div>
+          <div class="sensor-label">Soil Moisture</div>
+        </div>
+        <div class="sensor-item">
+          <div class="sensor-icon">☀️</div>
+          <div class="sensor-val" id="h-light">8.2k lux</div>
+          <div class="sensor-label">Light Intensity</div>
+        </div>
+      </div>
+      <div class="crop-progress">
+        <div class="cp-label"><span>Rice (Kuruvai)</span><span class="cp-pct">68%</span></div>
+        <div class="cp-bar"><div class="cp-fill" style="width:68%;background:var(--green)"></div></div>
+        <div class="cp-label" style="margin-top:0.75rem"><span>Vegetables (Mixed)</span><span class="cp-pct">45%</span></div>
+        <div class="cp-bar"><div class="cp-fill" style="width:45%;background:var(--amber)"></div></div>
+      </div>
+      <div class="farm-alert">
+        <span>⚠️</span>
+        <span>Irrigation recommended for Field 3 — moisture below threshold</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTIONS -->
+<section class="section" id="solutions">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">OUR PLATFORM</div>
+      <h2>Complete Farm Management Suite</h2>
+      <p>Everything you need to run a modern, data-driven farm operation</p>
+    </div>
+    <div class="solutions-grid">
+      <div class="sol-card">
+        <div class="sol-icon">📡</div>
+        <h3>IoT Sensor Network</h3>
+        <p>Deploy wireless sensors across your fields for 24/7 monitoring of soil, weather, and crop conditions.</p>
+        <ul class="sol-list">
+          <li>Soil moisture & pH</li>
+          <li>Temperature & humidity</li>
+          <li>Rainfall measurement</li>
+          <li>Wind speed & direction</li>
+        </ul>
+      </div>
+      <div class="sol-card featured">
+        <div class="sol-badge">MOST POPULAR</div>
+        <div class="sol-icon">🌾</div>
+        <h3>Crop Analytics AI</h3>
+        <p>AI-powered crop health analysis using satellite imagery and ground sensor data to predict yield and detect disease early.</p>
+        <ul class="sol-list">
+          <li>Disease detection</li>
+          <li>Yield prediction</li>
+          <li>Harvest scheduling</li>
+          <li>Pest risk alerts</li>
+        </ul>
+      </div>
+      <div class="sol-card">
+        <div class="sol-icon">🚿</div>
+        <h3>Smart Irrigation</h3>
+        <p>Automated irrigation scheduling based on real-time soil moisture, evapotranspiration, and weather forecasts.</p>
+        <ul class="sol-list">
+          <li>Auto-scheduling</li>
+          <li>Water usage tracking</li>
+          <li>Drip & sprinkler control</li>
+          <li>Usage reports</li>
+        </ul>
+      </div>
+      <div class="sol-card">
+        <div class="sol-icon">📊</div>
+        <h3>Market Intelligence</h3>
+        <p>Real-time commodity prices, demand forecasting, and direct buyer connections through our marketplace.</p>
+        <ul class="sol-list">
+          <li>Live mandi prices</li>
+          <li>Price trend charts</li>
+          <li>Buyer connections</li>
+          <li>Contract farming</li>
+        </ul>
+      </div>
+      <div class="sol-card">
+        <div class="sol-icon">🛰️</div>
+        <h3>Satellite Monitoring</h3>
+        <p>Weekly NDVI satellite analysis of your land to track vegetation health across every field.</p>
+        <ul class="sol-list">
+          <li>NDVI mapping</li>
+          <li>Field boundary tools</li>
+          <li>Historical comparison</li>
+          <li>PDF reports</li>
+        </ul>
+      </div>
+      <div class="sol-card">
+        <div class="sol-icon">☁️</div>
+        <h3>Weather Forecasting</h3>
+        <p>Hyper-local 15-day weather forecasts with farm-specific alerts for frost, heat stress, and heavy rain.</p>
+        <ul class="sol-list">
+          <li>15-day forecast</li>
+          <li>Frost & heat alerts</li>
+          <li>Rain probability</li>
+          <li>SMS/WhatsApp alerts</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE CROP MONITOR -->
+<section class="section section-dark" id="crops">
+  <div class="container">
+    <div class="section-header light">
+      <div class="section-tag">LIVE DATA</div>
+      <h2>Real-Time Crop Monitor</h2>
+      <p>Simulated live data from our sensor network across Kerala districts</p>
+    </div>
+    <div class="crop-monitor">
+      <div class="cm-sidebar">
+        <div class="cm-tabs">
+          <button class="cm-tab active" onclick="showCrop('rice')">🌾 Rice</button>
+          <button class="cm-tab" onclick="showCrop('veg')">🥬 Vegetables</button>
+          <button class="cm-tab" onclick="showCrop('coconut')">🥥 Coconut</button>
+          <button class="cm-tab" onclick="showCrop('rubber')">🌳 Rubber</button>
+        </div>
+        <div class="cm-field-stats" id="cm-stats">
+          <div class="cfs-item"><span>Crop Stage</span><span id="cs-stage" class="cfs-val">Tillering</span></div>
+          <div class="cfs-item"><span>Days to Harvest</span><span id="cs-harvest" class="cfs-val green">42 days</span></div>
+          <div class="cfs-item"><span>Expected Yield</span><span id="cs-yield" class="cfs-val">4.2 t/ha</span></div>
+          <div class="cfs-item"><span>Health Score</span><span id="cs-health" class="cfs-val green">87/100</span></div>
+          <div class="cfs-item"><span>Water Need</span><span id="cs-water" class="cfs-val amber">HIGH</span></div>
+          <div class="cfs-item"><span>Disease Risk</span><span id="cs-disease" class="cfs-val green">LOW</span></div>
+        </div>
+      </div>
+      <div class="cm-main">
+        <div class="cm-chart-title">Soil Moisture Trend — Last 7 Days</div>
+        <div class="cm-chart" id="cm-chart">
+          <div class="chart-bars" id="chart-bars"></div>
+          <div class="chart-xaxis" id="chart-xaxis"></div>
+        </div>
+        <div class="cm-sensors">
+          <div class="cms-card"><div class="cms-icon">🌡️</div><div class="cms-val" id="s-temp">28.4°C</div><div class="cms-label">Air Temp</div></div>
+          <div class="cms-card"><div class="cms-icon">💧</div><div class="cms-val" id="s-hum">72%</div><div class="cms-label">Humidity</div></div>
+          <div class="cms-card"><div class="cms-icon">🌱</div><div class="cms-val" id="s-soil">64%</div><div class="cms-label">Soil Moisture</div></div>
+          <div class="cms-card"><div class="cms-icon">⚗️</div><div class="cms-val" id="s-ph">6.8</div><div class="cms-label">Soil pH</div></div>
+          <div class="cms-card"><div class="cms-icon">🌬️</div><div class="cms-val" id="s-wind">12 km/h</div><div class="cms-label">Wind</div></div>
+          <div class="cms-card"><div class="cms-icon">🌧️</div><div class="cms-val" id="s-rain">2.4mm</div><div class="cms-label">Rainfall</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WEATHER -->
+<section class="section" id="weather">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">FORECAST</div>
+      <h2>5-Day Farm Weather Forecast</h2>
+      <p>Tiruvalla, Kerala — updated every 3 hours</p>
+    </div>
+    <div class="weather-strip" id="weather-strip"></div>
+    <div class="weather-alert-box">
+      <div class="wab-icon">⛈️</div>
+      <div>
+        <div class="wab-title">Heavy Rain Alert — 2 Days Ahead</div>
+        <div class="wab-sub">Expected 45–60mm rainfall on Day 3. Avoid pesticide application. Ensure drainage channels are clear. Harvest any ready crops within 36 hours.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET PRICES -->
+<section class="section section-tinted">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">MARKET INTELLIGENCE</div>
+      <h2>Live Commodity Prices</h2>
+      <p>Kerala Mandi prices — refreshed every 15 minutes</p>
+    </div>
+    <div class="market-table-wrap">
+      <table class="market-table">
+        <thead><tr><th>Commodity</th><th>Variety</th><th>Today's Price</th><th>Change</th><th>Market</th><th>Trend</th></tr></thead>
+        <tbody id="market-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="section-tag">ABOUT US</div>
+        <h2>Built by Farmers,<br>Powered by Technology</h2>
+        <p>GreenField AgriTech was founded in 2019 by a team of agricultural engineers and software developers from Kerala. We believe every farmer deserves access to the same data and tools that large agribusinesses use.</p>
+        <p style="margin-top:1rem">Our platform currently serves over 2,400 farms across Kerala, Tamil Nadu, and Karnataka, helping farmers increase yields by an average of 23% while reducing water usage by 30%.</p>
+        <div class="about-stats">
+          <div class="astat"><span class="astat-num">23%</span><span class="astat-label">Average Yield Increase</span></div>
+          <div class="astat"><span class="astat-num">30%</span><span class="astat-label">Water Savings</span></div>
+          <div class="astat"><span class="astat-num">4.8★</span><span class="astat-label">Farmer Rating</span></div>
+        </div>
+      </div>
+      <div class="about-visual">
+        <div class="cert-card">
+          <div style="font-size:2.5rem;margin-bottom:0.75rem">🏆</div>
+          <div class="cert-title">AgriTech India Award 2023</div>
+          <div class="cert-sub">Best Smart Farming Platform — South India</div>
+        </div>
+        <div class="cert-card">
+          <div style="font-size:2.5rem;margin-bottom:0.75rem">🔒</div>
+          <div class="cert-title">ISO 27001 Certified</div>
+          <div class="cert-sub">Information Security Management System</div>
+        </div>
+        <div class="cert-card">
+          <div style="font-size:2.5rem;margin-bottom:0.75rem">🌿</div>
+          <div class="cert-title">Ministry of Agriculture</div>
+          <div class="cert-sub">Registered Digital Agriculture Service Provider</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / CTA -->
+<section class="section cta-section" id="contact">
+  <div class="container">
+    <div class="cta-box">
+      <h2>Start Monitoring Your Farm Today</h2>
+      <p>Join 2,400+ farmers already using GreenField AgriTech. Free 30-day trial. No credit card required.</p>
+      <form class="cta-form" onsubmit="ctaSubmit(event)">
+        <input type="text" placeholder="Your Name" required>
+        <input type="tel" placeholder="Phone Number" required>
+        <input type="text" placeholder="District / Village">
+        <button type="submit" class="btn btn-primary btn-lg">Get Free Trial →</button>
+      </form>
+      <p class="cta-note">By registering, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="nav-logo" style="margin-bottom:1rem">
+          <span class="logo-leaf">🌿</span>
+          <span class="logo-text">GreenField <span>AgriTech</span></span>
+        </div>
+        <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.7">Smart farming solutions for modern agriculture. Empowering farmers with data and technology.</p>
+      </div>
+      <div>
+        <div class="footer-head">Platform</div>
+        <ul class="footer-links">
+          <li><a href="#">IoT Sensors</a></li>
+          <li><a href="#">Crop Analytics</a></li>
+          <li><a href="#">Smart Irrigation</a></li>
+          <li><a href="#">Market Prices</a></li>
+          <li><a href="pages/login.html">Farm Login</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-head">Company</div>
+        <ul class="footer-links">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-head">Contact</div>
+        <div class="footer-contact">
+          <div>📍 Tiruvalla, Kerala 689101</div>
+          <div>📞 +91 98765 43210</div>
+          <div>✉️ hello@greenfieldagri.in</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 GreenField AgriTech Pvt. Ltd. All rights reserved.</span>
+      <span style="color:var(--text-muted);font-size:0.75rem">This site is protected by security monitoring systems.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/honeypot.js"></script>
+</body>
+</html>
