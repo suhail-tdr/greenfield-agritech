@@ -218,9 +218,9 @@
 
 <script>
 // ── BACKEND CONFIGURATION ──────────────────────────────
-// Replace with your Render/Railway URL after deploying
 const BACKEND = 'https://greenfield-backend-8scu.onrender.com';
-let API_KEY = sessionStorage.getItem('gf_api_key') || '';
+// API key is always the hardcoded value — no dependency on session
+const API_KEY = 'greenfield-secret-2024';
 let stats = {};
 let alerts = [];
 let backendOk = false;
@@ -229,10 +229,11 @@ let backendOk = false;
 (function() {
   const auth = sessionStorage.getItem('gf_auth');
   if (!auth) { window.location.href = 'login.html'; return; }
-  const d = JSON.parse(auth);
-  document.getElementById('dash-uname').textContent = d.user;
-  document.getElementById('dash-avatar').textContent = d.user[0].toUpperCase();
-  API_KEY = d.api_key || API_KEY;
+  try {
+    const d = JSON.parse(auth);
+    document.getElementById('dash-uname').textContent = d.user || 'agri_admin';
+    document.getElementById('dash-avatar').textContent = (d.user || 'A')[0].toUpperCase();
+  } catch(e) {}
 })();
 
 function doLogout() {
@@ -275,28 +276,50 @@ function showPage(id) {
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
 // ── LOAD STATS ────────────────────────────────────────
-async function loadStats() {
-  if (!BACKEND || BACKEND.includes('YOUR-BACKEND')) {
-    setBanner('err', '⚠️ Backend URL not set. Open <code>js/honeypot.js</code> and set <strong>BACKEND_URL</strong> to your Render/Railway URL.');
-    document.getElementById('backend-status').textContent = '⚠ Not configured';
-    // Fallback to localStorage
-    loadFromLocalStorage();
-    return;
-  }
+let _retryCount = 0;
 
+async function loadStats() {
   try {
-    const data = await apiGet('/api/stats');
+    // Show waking message on first few attempts
+    if (!backendOk && _retryCount < 3) {
+      setBanner('loading', '⏳ Connecting to backend' + (_retryCount > 0 ? ' (waking up — Render free tier sleeps, please wait ~30s)' : '...'));
+      document.getElementById('backend-status').textContent = '⏳ Connecting...';
+      document.getElementById('backend-status').style.cssText = 'font-size:0.72rem;padding:3px 10px;border-radius:12px;font-weight:600;background:#fef9c3;color:#854d0e';
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
+    const res = await fetch(BACKEND + '/api/stats', {
+      headers: { 'X-API-Key': API_KEY },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    _retryCount = 0;
     stats = data;
     backendOk = true;
-    setBanner('ok', '✅ Connected to backend — showing real-time data from all devices worldwide.');
+    setBanner('ok', '✅ Connected to live backend — showing real-time data from ALL devices worldwide.');
     document.getElementById('backend-status').style.cssText = 'font-size:0.72rem;padding:3px 10px;border-radius:12px;font-weight:600;background:#dcfce7;color:#166534';
     document.getElementById('backend-status').textContent = '✅ Backend Live';
     renderStats(data);
     document.getElementById('last-refresh').textContent = 'Updated: ' + new Date().toLocaleTimeString('en-IN');
+
   } catch(e) {
-    setBanner('err', '❌ Cannot reach backend. Is your Render/Railway server running? Check the README for setup instructions.');
-    document.getElementById('backend-status').textContent = '❌ Offline';
-    loadFromLocalStorage();
+    _retryCount++;
+    if (_retryCount <= 6) {
+      // Still trying — show waking message, keep retrying
+      setBanner('loading', '⏳ Waking backend (attempt ' + _retryCount + '/6 — Render free tier needs ~30s after sleep)...');
+      document.getElementById('backend-status').textContent = '⏳ Waking...';
+    } else {
+      // Genuinely failed after many tries
+      setBanner('err', '❌ Backend unreachable after 6 attempts. Check your Render dashboard — is the service <strong>Live</strong>? <a href="https://dashboard.render.com" target="_blank" style="color:#991b1b;font-weight:700">Open Render →</a>');
+      document.getElementById('backend-status').textContent = '❌ Offline';
+      loadFromLocalStorage();
+    }
   }
 }
 

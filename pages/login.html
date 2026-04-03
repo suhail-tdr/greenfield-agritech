@@ -60,6 +60,7 @@
   // ── BACKEND URL ─────────────────────────────────────
   // Replace with your Render/Railway backend URL
   const BACKEND = 'https://greenfield-backend-8scu.onrender.com';
+  const HARDCODED_API_KEY = 'greenfield-secret-2024';
 
   async function doLogin() {
     const user = document.getElementById('username').value.trim();
@@ -74,52 +75,36 @@
     // Log attempt to backend
     if (window.HP) window.HP.sendLog('LOGIN_ATTEMPT', { username: user });
 
-    try {
-      let authed = false;
-      let apiKey = '';
+    // Check credentials locally first (instant, reliable)
+    // Also log to backend silently in background
+    const ADMIN_USER = 'agri_admin';
+    const ADMIN_PASS = 'GreenField@2024';
+    const authed = (user === ADMIN_USER && pass === ADMIN_PASS);
 
-      if (BACKEND && !BACKEND.includes('YOUR-BACKEND')) {
-        // Try real backend authentication
-        const res = await fetch(`${BACKEND}/api/auth`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user, pass }),
-        });
-        const data = await res.json();
-        if (data.status === 'ok') {
-          authed = true;
-          apiKey = data.api_key;
-        }
-      } else {
-        // Fallback: local credential check
-        authed = (user === 'agri_admin' && pass === 'GreenField@2024');
-        apiKey = 'greenfield-secret-2024';
-      }
+    if (authed) {
+      // Log success to backend (non-blocking)
+      if (window.HP) window.HP.sendLog('LOGIN_SUCCESS', { username: user, role: 'admin' });
 
-      if (authed) {
-        if (window.HP) window.HP.sendLog('LOGIN_SUCCESS', { username: user, role: 'admin' });
-        sessionStorage.setItem('gf_auth', JSON.stringify({ user, role: 'admin', api_key: apiKey, ts: Date.now() }));
-        document.getElementById('login-error').classList.remove('show');
-        document.getElementById('login-success').style.display = 'flex';
-        setTimeout(() => window.location.href = 'dashboard.html', 1000);
-      } else {
-        if (window.HP) window.HP.sendLog('ACCESS_DENIED', { username: user });
-        showError('Invalid credentials. Access denied. This attempt has been recorded.');
-        btn.disabled = false;
-        btn.textContent = 'Sign In to Dashboard';
-      }
-    } catch(e) {
-      // Network error — fallback to local check
-      const authed = (user === 'agri_admin' && pass === 'GreenField@2024');
-      if (authed) {
-        sessionStorage.setItem('gf_auth', JSON.stringify({ user, role: 'admin', api_key: 'greenfield-secret-2024', ts: Date.now() }));
-        document.getElementById('login-success').style.display = 'flex';
-        setTimeout(() => window.location.href = 'dashboard.html', 1000);
-      } else {
-        showError('Invalid credentials. Access denied.');
-        btn.disabled = false;
-        btn.textContent = 'Sign In to Dashboard';
-      }
+      // Also try backend auth for the api_key, but don't block on it
+      fetch(BACKEND + '/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user, pass }),
+      }).catch(() => {});
+
+      sessionStorage.setItem('gf_auth', JSON.stringify({
+        user, role: 'admin',
+        api_key: HARDCODED_API_KEY,
+        ts: Date.now()
+      }));
+      document.getElementById('login-error').classList.remove('show');
+      document.getElementById('login-success').style.display = 'flex';
+      setTimeout(() => window.location.href = 'dashboard.html', 900);
+    } else {
+      if (window.HP) window.HP.sendLog('ACCESS_DENIED', { username: user });
+      showError('Invalid credentials. Access denied. This attempt has been recorded.');
+      btn.disabled = false;
+      btn.textContent = 'Sign In to Dashboard';
     }
   }
 
