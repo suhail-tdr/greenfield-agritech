@@ -219,7 +219,7 @@
 <script>
 // ── BACKEND CONFIGURATION ──────────────────────────────
 // Replace with your Render/Railway URL after deploying
-const BACKEND = window.HONEYPOT_BACKEND || "https://greenfield-backend-8scu.onrender.com" || '';
+const BACKEND = window.HONEYPOT_BACKEND || localStorage.getItem('hp_backend_url') || localStorage.getItem('hp_backend') || '';
 let API_KEY = sessionStorage.getItem('gf_api_key') || '';
 let stats = {};
 let alerts = [];

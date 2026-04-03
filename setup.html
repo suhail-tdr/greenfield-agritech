@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setup — GreenField AgriTech Honeypot</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #2d7a3a; --green-light: #3fa04e; --green-pale: #e8f5eb;
+    --text: #1a2e1d; --text-muted: #6b7f6e; --border: #d4e8d7;
+    --bg: #f8fdf9; --red: #d32f2f; --red-pale: #ffebee;
+    --amber: #e8860a; --amber-pale: #fff3e0;
+    --blue: #1565c0; --blue-pale: #e3f2fd;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; }
+  .card { background:white; border:1px solid var(--border); border-radius:20px; padding:2.5rem; width:100%; max-width:580px; box-shadow:0 8px 40px rgba(45,122,58,0.08); }
+  .logo { display:flex; align-items:center; gap:0.5rem; font-weight:700; font-size:1.05rem; color:var(--text); margin-bottom:2rem; }
+  .logo span { color:var(--green); }
+  h1 { font-family:'DM Serif Display',serif; font-size:1.9rem; line-height:1.2; margin-bottom:0.5rem; }
+  .sub { color:var(--text-muted); font-size:0.92rem; line-height:1.6; margin-bottom:2rem; }
+  label { display:block; font-size:0.82rem; font-weight:600; color:var(--text); margin-bottom:0.4rem; }
+  input[type=text], input[type=url] {
+    width:100%; padding:0.8rem 1rem; border:1.5px solid var(--border); border-radius:10px;
+    font-family:'Outfit',sans-serif; font-size:0.95rem; color:var(--text); outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(45,122,58,0.1); }
+  input.ok  { border-color:#16a34a; background:#f0fdf4; }
+  input.err { border-color:var(--red); background:var(--red-pale); }
+  .hint { font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem; }
+  .btn { width:100%; padding:0.9rem; background:var(--green); color:white; border:none; border-radius:10px; font-family:'Outfit',sans-serif; font-size:1rem; font-weight:600; cursor:pointer; transition:all 0.2s; margin-top:1.25rem; }
+  .btn:hover { background:var(--green-light); transform:translateY(-1px); }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+  .status-box { border-radius:10px; padding:0.85rem 1.1rem; font-size:0.85rem; line-height:1.6; margin-top:1.25rem; display:none; align-items:flex-start; gap:0.65rem; }
+  .status-box.show { display:flex; }
+  .status-box.testing { background:var(--amber-pale); border:1px solid #fcd34d; color:#92400e; }
+  .status-box.success { background:#dcfce7; border:1px solid #86efac; color:#166534; }
+  .status-box.error   { background:var(--red-pale); border:1px solid #fca5a5; color:#991b1b; }
+  .status-box.info    { background:var(--blue-pale); border:1px solid #93c5fd; color:#1e3a8a; }
+  .steps-done { margin-top:1.75rem; display:none; flex-direction:column; gap:0.6rem; }
+  .steps-done.show { display:flex; }
+  .step-row { display:flex; align-items:center; gap:0.75rem; font-size:0.85rem; }
+  .step-icon { font-size:1rem; width:24px; text-align:center; flex-shrink:0; }
+  .divider { height:1px; background:var(--border); margin:1.75rem 0; }
+  .section-title { font-size:0.72rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); margin-bottom:1rem; }
+  .trouble-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+  .trouble-card { border:1px solid var(--border); border-radius:10px; padding:1rem; cursor:pointer; transition:all 0.2s; }
+  .trouble-card:hover { border-color:var(--green); background:var(--green-pale); }
+  .trouble-card h4 { font-size:0.88rem; font-weight:600; margin-bottom:0.25rem; }
+  .trouble-card p { font-size:0.78rem; color:var(--text-muted); line-height:1.5; }
+  .answer-box { display:none; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1.1rem; font-size:0.85rem; line-height:1.7; color:var(--text); margin-top:0.75rem; }
+  .answer-box.show { display:block; }
+  code { background:#f1f5f2; border:1px solid var(--border); border-radius:4px; padding:1px 6px; font-family:monospace; font-size:0.82rem; }
+  .back-link { text-align:center; margin-top:1.5rem; font-size:0.85rem; color:var(--text-muted); }
+  .back-link a { color:var(--green); font-weight:600; text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🌿 GreenField <span>AgriTech</span> — Setup</div>
+
+  <h1>Connect your backend</h1>
+  <p class="sub">Paste your Render URL below. This page tests the connection, saves the URL, and configures everything automatically — no manual file editing needed.</p>
+
+  <label for="render-url">Your Render Backend URL</label>
+  <input type="url" id="render-url" placeholder="https://greenfield-honeypot-backend.onrender.com" autocomplete="off" oninput="onUrlInput()">
+  <div class="hint">Find this in your Render dashboard → your service → the URL at the top of the page.</div>
+
+  <button class="btn" id="test-btn" onclick="testConnection()" disabled>Test Connection & Save</button>
+
+  <!-- Status messages -->
+  <div class="status-box testing" id="status-testing">⏳ Testing connection to your backend... (first wake-up may take 30 seconds)</div>
+  <div class="status-box success" id="status-ok">✅ <div><strong>Backend connected!</strong> URL saved. Your dashboard and login page will now use this backend. <a href="pages/dashboard.html" style="color:#166534;font-weight:600">Open Dashboard →</a></div></div>
+  <div class="status-box error" id="status-err">❌ <div id="err-detail">Could not reach backend.</div></div>
+  <div class="status-box info" id="status-sleeping">🌙 <div><strong>Backend is waking up.</strong> Render free tier sleeps after 15 min. Retrying automatically in 10 seconds...</div></div>
+
+  <!-- Steps confirmed -->
+  <div class="steps-done" id="steps-done">
+    <div class="section-title">What was configured</div>
+    <div class="step-row"><span class="step-icon">✅</span><span>Backend URL saved to browser storage</span></div>
+    <div class="step-row"><span class="step-icon">✅</span><span>Dashboard connected to live database</span></div>
+    <div class="step-row"><span class="step-icon">✅</span><span>Login page will log to real backend</span></div>
+    <div class="step-row"><span class="step-icon">✅</span><span>Honeypot tracker sending data to server</span></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Troubleshooting -->
+  <div class="section-title">Common problems</div>
+  <div class="trouble-grid">
+    <div class="trouble-card" onclick="toggleAnswer('a1')">
+      <h4>❌ "Cannot reach backend"</h4>
+      <p>Connection refused or timeout error</p>
+    </div>
+    <div class="trouble-card" onclick="toggleAnswer('a2')">
+      <h4>⏳ Takes 30+ seconds</h4>
+      <p>Backend loads very slowly</p>
+    </div>
+    <div class="trouble-card" onclick="toggleAnswer('a3')">
+      <h4>🔴 Deploy failed on Render</h4>
+      <p>Error in Render build logs</p>
+    </div>
+    <div class="trouble-card" onclick="toggleAnswer('a4')">
+      <h4>🤔 Don't know my URL</h4>
+      <p>Can't find the Render URL</p>
+    </div>
+  </div>
+
+  <div class="answer-box" id="a1">
+    <strong>3 things to check:</strong><br>
+    1. Go to <strong>render.com → your service</strong>. Is the status green (Live)? If red, check the logs tab.<br>
+    2. Make sure the URL starts with <code>https://</code> and ends with <code>.onrender.com</code> — no trailing slash.<br>
+    3. Your Render service may have been deleted. Check if it still exists in your Render dashboard.
+  </div>
+  <div class="answer-box" id="a2">
+    <strong>This is normal for the free tier.</strong><br>
+    Render free services sleep after 15 minutes of no traffic. The first request wakes them up — this takes 20–45 seconds. After that, responses are fast. Just wait and click "Test Connection" again. It will work.
+  </div>
+  <div class="answer-box" id="a3">
+    <strong>Most common cause: missing files.</strong><br>
+    Your <code>greenfield-backend</code> GitHub repo must contain exactly:<br>
+    <code>app.py</code> · <code>requirements.txt</code> · <code>Procfile</code><br><br>
+    Check the Render build log. If it says <em>"No module named flask"</em>, the <code>requirements.txt</code> file is missing or empty. Re-upload it.
+  </div>
+  <div class="answer-box" id="a4">
+    <strong>Find it in Render:</strong><br>
+    1. Go to <a href="https://dashboard.render.com" target="_blank" style="color:var(--green)">dashboard.render.com</a><br>
+    2. Click your web service (greenfield-honeypot-backend)<br>
+    3. The URL is shown at the top — looks like <code>https://greenfield-honeypot-backend.onrender.com</code><br>
+    4. Copy and paste it into the box above.
+  </div>
+
+  <div class="back-link"><a href="index.html">← Back to main site</a> · <a href="pages/login.html">Farm Login</a></div>
+</div>
+
+<script>
+  const HP_BACKEND_KEY = 'hp_backend_url';
+  let retryTimer = null;
+
+  // Pre-fill saved URL
+  const saved = localStorage.getItem(HP_BACKEND_KEY);
+  if (saved) {
+    document.getElementById('render-url').value = saved;
+    document.getElementById('render-url').classList.add('ok');
+    document.getElementById('test-btn').disabled = false;
+    showInfo(`Previously saved URL loaded. Click "Test Connection" to verify it's still working.`);
+  }
+
+  function onUrlInput() {
+    const val = document.getElementById('render-url').value.trim();
+    const btn = document.getElementById('test-btn');
+    const input = document.getElementById('render-url');
+    hideAll();
+    if (val.startsWith('https://') && val.includes('.onrender.com')) {
+      input.classList.add('ok'); input.classList.remove('err');
+      btn.disabled = false;
+    } else if (val.length > 5) {
+      input.classList.add('err'); input.classList.remove('ok');
+      btn.disabled = true;
+      showErr('URL must start with https:// and contain .onrender.com');
+    } else {
+      input.classList.remove('ok','err');
+      btn.disabled = true;
+    }
+  }
+
+  async function testConnection() {
+    const url = document.getElementById('render-url').value.trim().replace(/\/$/, '');
+    hideAll();
+    document.getElementById('status-testing').classList.add('show');
+    document.getElementById('test-btn').disabled = true;
+    document.getElementById('test-btn').textContent = 'Testing...';
+
+    let attempts = 0;
+    const maxAttempts = 4;
+
+    async function attempt() {
+      attempts++;
+      try {
+        // Test the health endpoint with a timeout
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+
+        const res = await fetch(`${url}/`, { signal: controller.signal, mode: 'cors' });
+        clearTimeout(timeout);
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === 'online') {
+            onSuccess(url);
+            return;
+          }
+        }
+        onError(url, `Server responded but returned unexpected status: ${res.status}`);
+
+      } catch(e) {
+        if (e.name === 'AbortError') {
+          // Timeout — server might be waking up
+          if (attempts < maxAttempts) {
+            hideAll();
+            document.getElementById('status-sleeping').classList.add('show');
+            retryTimer = setTimeout(attempt, 12000);
+          } else {
+            onError(url, 'Connection timed out after multiple attempts. The server may be down or the URL may be wrong.');
+          }
+        } else if (e.message.includes('Failed to fetch') || e.message.includes('NetworkError')) {
+          if (attempts < maxAttempts) {
+            hideAll();
+            document.getElementById('status-sleeping').classList.add('show');
+            retryTimer = setTimeout(attempt, 10000);
+          } else {
+            onError(url, 'Network error — cannot reach the server. Check your Render dashboard to confirm the service is running.');
+          }
+        } else {
+          onError(url, e.message);
+        }
+      }
+    }
+
+    attempt();
+  }
+
+  function onSuccess(url) {
+    // Save to localStorage — picked up automatically by honeypot.js, login.html, dashboard.html
+    localStorage.setItem(HP_BACKEND_KEY, url);
+
+    hideAll();
+    document.getElementById('status-ok').classList.add('show');
+    document.getElementById('steps-done').classList.add('show');
+    document.getElementById('test-btn').textContent = '✅ Connected — Test Again';
+    document.getElementById('test-btn').disabled = false;
+    document.getElementById('render-url').classList.add('ok');
+    document.getElementById('render-url').classList.remove('err');
+  }
+
+  function onError(url, detail) {
+    hideAll();
+    document.getElementById('err-detail').innerHTML = `
+      <strong>Could not reach:</strong> <code>${url}</code><br>
+      <strong>Error:</strong> ${detail}<br><br>
+      Check the troubleshooting cards below.
+    `;
+    document.getElementById('status-err').classList.add('show');
+    document.getElementById('test-btn').textContent = 'Try Again';
+    document.getElementById('test-btn').disabled = false;
+  }
+
+  function showErr(msg) {
+    document.getElementById('err-detail').innerHTML = msg;
+    document.getElementById('status-err').classList.add('show');
+  }
+
+  function showInfo(msg) {
+    const el = document.getElementById('status-sleeping');
+    el.querySelector('div').innerHTML = msg;
+    el.classList.add('show');
+  }
+
+  function hideAll() {
+    ['status-testing','status-ok','status-err','status-sleeping'].forEach(id => {
+      document.getElementById(id).classList.remove('show');
+    });
+    clearTimeout(retryTimer);
+  }
+
+  function toggleAnswer(id) {
+    const el = document.getElementById(id);
+    // Close all others
+    ['a1','a2','a3','a4'].forEach(a => { if(a!==id) document.getElementById(a).classList.remove('show'); });
+    el.classList.toggle('show');
+  }
+</script>
+</body>
+</html>
