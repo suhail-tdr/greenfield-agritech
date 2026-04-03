@@ -1,29 +1,35 @@
 /* =====================================================
-   GreenField AgriTech — Honeypot Tracking System
-   Silent visitor logging for threat intelligence
+   GreenField AgriTech — Honeypot Tracker
+   Sends all visitor data to the real backend API
    ===================================================== */
 
 (function HoneypotTracker() {
 
-  const HP_KEY = 'gf_threat_logs';
-  const MAX_LOGS = 500;
+  // ── CONFIGURATION ──────────────────────────────────
+  // ⚠️  REPLACE THIS with your actual Render/Railway URL after deploying!
+  // Example: "https://greenfield-honeypot-backend.onrender.com"
+  const BACKEND_URL = window.HONEYPOT_BACKEND || "https://greenfield-backend-8scu.onrender.com";
 
-  // ── GATHER VISITOR FINGERPRINT ─────────────────────
+  // Also keep localStorage as fallback
+  const HP_KEY = 'gf_threat_logs';
+  const MAX_LOCAL = 200;
+
+  // ── VISITOR FINGERPRINT ────────────────────────────
   function getVisitorInfo() {
     return {
-      ts: new Date().toISOString(),
-      ts_local: new Date().toLocaleString('en-IN'),
-      url: window.location.href,
-      page: window.location.pathname,
-      ref: document.referrer || 'Direct',
-      ua: navigator.userAgent,
-      browser: getBrowser(),
-      os: getOS(),
-      screen: `${screen.width}x${screen.height}`,
-      lang: navigator.language,
-      tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      touch: navigator.maxTouchPoints > 0,
-      online: navigator.onLine,
+      ts:        new Date().toISOString(),
+      ts_local:  new Date().toLocaleString('en-IN'),
+      url:       window.location.href,
+      page:      window.location.pathname,
+      ref:       document.referrer || 'Direct',
+      ua:        navigator.userAgent,
+      browser:   getBrowser(),
+      os:        getOS(),
+      screen:    `${screen.width}x${screen.height}`,
+      lang:      navigator.language,
+      tz:        Intl.DateTimeFormat().resolvedOptions().timeZone,
+      touch:     navigator.maxTouchPoints > 0,
+      online:    navigator.onLine,
     };
   }
 
@@ -33,6 +39,7 @@
     if (ua.includes('Firefox')) return 'Firefox';
     if (ua.includes('Safari') && !ua.includes('Chrome')) return 'Safari';
     if (ua.includes('Edg')) return 'Edge';
+    if (ua.includes('OPR') || ua.includes('Opera')) return 'Opera';
     return 'Other';
   }
 
@@ -46,48 +53,60 @@
     return 'Other';
   }
 
-  // ── SAVE LOG ENTRY ─────────────────────────────────
-  function saveLog(event, extra = {}) {
+  // ── SEND TO BACKEND ────────────────────────────────
+  function sendLog(event, extra = {}) {
+    const payload = { event, ...getVisitorInfo(), ...extra };
+
+    // 1. Send to real backend (fire-and-forget, silent)
+    if (BACKEND_URL && !BACKEND_URL.includes('YOUR-BACKEND')) {
+      fetch(`${BACKEND_URL}/api/log`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+        keepalive: true,   // ensures request completes even on page exit
+      }).catch(() => {}); // silently ignore network errors
+    }
+
+    // 2. Also save to localStorage (same-device dashboard fallback)
     try {
       const logs = JSON.parse(localStorage.getItem(HP_KEY) || '[]');
-      const entry = {
-        id: Date.now(),
-        event,
-        ...getVisitorInfo(),
-        ...extra,
-      };
-      logs.unshift(entry);
-      if (logs.length > MAX_LOGS) logs.length = MAX_LOGS;
+      logs.unshift({ id: Date.now(), ...payload });
+      if (logs.length > MAX_LOCAL) logs.length = MAX_LOCAL;
       localStorage.setItem(HP_KEY, JSON.stringify(logs));
     } catch(e) {}
   }
 
-  // ── LOG PAGE VISIT ─────────────────────────────────
-  saveLog('PAGE_VISIT');
+  // ── EVENTS TO LOG ──────────────────────────────────
 
-  // ── LOG TIME ON PAGE ───────────────────────────────
+  // Page visit
+  sendLog('PAGE_VISIT');
+
+  // Time on page (logged on exit)
   const arrivedAt = Date.now();
   window.addEventListener('beforeunload', () => {
-    const secs = Math.round((Date.now() - arrivedAt) / 1000);
-    saveLog('PAGE_EXIT', { duration_secs: secs });
+    sendLog('PAGE_EXIT', {
+      duration_secs: Math.round((Date.now() - arrivedAt) / 1000)
+    });
   });
 
-  // ── LOG MOUSE MOVEMENT (detect bots) ──────────────
-  let mouseMoved = false;
+  // First human interaction (detects bots vs real users)
   document.addEventListener('mousemove', () => {
-    if (!mouseMoved) { mouseMoved = true; saveLog('HUMAN_INTERACTION', { type: 'mouse_move' }); }
+    sendLog('HUMAN_INTERACTION', { type: 'mouse_move' });
   }, { once: true });
 
-  // ── LOG SCROLL ─────────────────────────────────────
-  let scrollLogged = false;
+  // First scroll
   window.addEventListener('scroll', () => {
-    if (!scrollLogged) {
-      scrollLogged = true;
-      saveLog('HUMAN_INTERACTION', { type: 'scroll', depth: Math.round((window.scrollY / document.body.scrollHeight) * 100) + '%' });
-    }
-  });
+    sendLog('HUMAN_INTERACTION', {
+      type: 'scroll',
+      depth: Math.round((window.scrollY / document.body.scrollHeight) * 100) + '%'
+    });
+  }, { once: true });
 
-  // ── EXPOSE TO WINDOW for login page ───────────────
-  window.HP = { saveLog };
+  // ── EXPOSE API ─────────────────────────────────────
+  // Used by login.html to log attempts with username
+  window.HP = {
+    sendLog,
+    BACKEND_URL,
+  };
 
 })();
