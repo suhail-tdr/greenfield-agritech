@@ -6,8 +6,8 @@
 
   // Reads URL set by setup.html automatically
   var BACKEND_URL = (
+    'https://greenfield-backend-8scu.onrender.com' ||
     localStorage.getItem('hp_backend_url') ||
-    sessionStorage.getItem('hp_backend_url') ||
     ''
   );
 
